@@ -36,6 +36,7 @@ PARAM_FILES = {
     'eta_dis_es': 'eta_dis_es.csv',#maybe constant
     'eta_ch_ev': 'eta_ch_ev.csv',#maybe constant
     'alpha_chp': 'alpha_chp.csv',#maybe constant
+    'H_demand': 'H_demand.csv',
     'Eev_required': 'Eev_required.csv',
     'tleave': 'tleave.csv',
 }
