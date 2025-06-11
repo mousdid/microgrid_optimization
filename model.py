@@ -21,7 +21,7 @@ def create_model():
     # Unit-commitment binaries
     m.u_chp = Var(m.T, domain=Binary)
     m.u_dg = Var(m.T, domain=Binary)
-    m.e_startup_chp = Var(m.T, domain=Binary)
+   # m.e_startup_chp = Var(m.T, domain=Binary) #maybe to add
     m.e_startup_dg = Var(m.T, domain=Binary)
     # Storage vars & binaries
     m.p_ch_es = Var(m.T, domain=NonNegativeReals)

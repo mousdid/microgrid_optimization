@@ -19,6 +19,13 @@ def add_constraints(m):
     # Mutually exclusive storage modes
     m.no_charge_discharge = Constraint(m.T, rule=lambda m,t: m.u_ch_es[t] + m.u_dis_es[t] <= 1)
 
+# Startup logic for DG 
+    def startup_dg_rule(m, t):
+        if t == m.T.first():
+            return m.e_startup_dg[t] >= m.u_dg[t]
+        return m.e_startup_dg[t] >= m.u_dg[t] - m.u_dg[m.T.prev(t)]
+    m.dg_startup = Constraint(m.T, rule=startup_dg_rule)
+    
     # Heat production constraints
     m.heat_balance = Constraint(m.T, rule=lambda m,t: m.H_chp[t] == m.alpha_chp[t] * m.p_chp[t])
     m.heat_demand = Constraint(m.T, rule=lambda m,t: m.H_demand[t] <= m.H_chp[t])
