@@ -1,13 +1,13 @@
 # Time periods 
-TIME_STEPS = list(range(1, 25))  #to modify depending on data
+TIME_STEPS = list(range(1, 48))  #to modify depending on data
 
 
-DATA_DIR = "data"
+DATA_DIR = "data/"
 
 
 # Each CSV has one column with header matching the key
 PARAM_FILES = {
-    'load': 'load.csv',
+    'param_load': 'load.csv',
     'price_import': 'price_import.csv',
     'price_export': 'price_export.csv',
     'rho_gas': 'rho_gas.csv',#maybe constant
@@ -38,5 +38,8 @@ PARAM_FILES = {
     'alpha_chp': 'alpha_chp.csv',#maybe constant
     'H_demand': 'H_demand.csv',
     'Eev_required': 'Eev_required.csv',
-    'tleave': 'tleave.csv',
+    # Ev car availability with start session and end sessions
+    'A': 'A.csv',
+    'session_start': 'session_start.csv',
+    'leave_possible': 'leave_possible.csv',
 }

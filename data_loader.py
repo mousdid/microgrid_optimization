@@ -6,7 +6,7 @@ def load_parameters():
     params = {}
     for name, fname in PARAM_FILES.items():
         path = os.path.join(DATA_DIR, fname)
-        df = pd.read_csv(path, index_col=0)
+        df = pd.read_csv(path)
         series = df.iloc[:, 0].to_dict()
         params[name] = {t: series.get(t, 0) for t in TIME_STEPS}
     return params 

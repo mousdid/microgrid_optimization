@@ -3,3 +3,7 @@
 
 # Ignore Python bytecode cache
 __pycache__/
+
+
+#Ignore txt files
+*.txt

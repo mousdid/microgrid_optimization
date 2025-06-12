@@ -31,6 +31,5 @@ def create_model():
     m.ees = Var(m.T, domain=NonNegativeReals)
     # EV charging
     m.p_ch_ev = Var(m.T, domain=NonNegativeReals)
-    # A_t binary variablity of a car
-    m.A = Var(m.T, domain=Binary)
+    m.eev = Var(m.T, domain=NonNegativeReals)
     return m
