@@ -21,14 +21,15 @@ def create_model():
     # Unit-commitment binaries
     m.u_chp = Var(m.T, domain=Binary)
     m.u_dg = Var(m.T, domain=Binary)
-   # m.e_startup_chp = Var(m.T, domain=Binary) #maybe to add
+    m.e_startup_chp = Var(m.T, domain=Binary) #maybe to add
     m.e_startup_dg = Var(m.T, domain=Binary)
     # Storage vars & binaries
     m.p_ch_es = Var(m.T, domain=NonNegativeReals)
     m.p_dis_es = Var(m.T, domain=NonNegativeReals)
     m.u_ch_es = Var(m.T, domain=Binary)
     m.u_dis_es = Var(m.T, domain=Binary)
-    m.ees = Var(m.T, domain=NonNegativeReals)
+    # Add this with your other variable definitions in model.py
+    m.ees = Var(m.T, domain=NonNegativeReals)  # Battery state of charge
     # EV charging
     m.p_ch_ev = Var(m.T, domain=NonNegativeReals)
     m.eev = Var(m.T, domain=NonNegativeReals)
