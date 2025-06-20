@@ -18,11 +18,11 @@ df.columns = [col.strip().lower().replace(" ", "_") for col in df.columns]
 # extracting matching columns
 df['load'] = df['total_electrical_load_served_(kw)']
 df['PPV_max'] = df['photovoltaic_panel_power_output_(kw)']
-df['PWT_max'] = df['wind_turbine_power_output_(kw)']
-df['PDG_max'] = df['generator_power_output_(kw)']
-df['Pch_es_max'] = df['battery_charge_power_(kw)']
-df['Pdis_es_max'] = df['battery_discharge_power_(kw)']
-df['soc'] = df['battery_state_of_charge_(%)'] / 100
+# df['PWT_max'] = df['wind_turbine_power_output_(kw)']
+# df['PDG_max'] = df['generator_power_output_(kw)']
+# df['Pch_es_max'] = df['battery_charge_power_(kw)']
+# df['Pdis_es_max'] = df['battery_discharge_power_(kw)']
+# df['soc'] = df['battery_state_of_charge_(%)'] / 100
 
 df = df.iloc[:HOURS]  # Limit the size
 
@@ -62,31 +62,31 @@ time_series_params = [
     'Pch_es_max', 'Pdis_es_max', 'Ees_max', 'Ees_min'
 ]
 
-for param in time_series_params:
-    df[[param]].to_csv(f"{output_dir}/{param}.csv", index=False)
+# for param in time_series_params:
+#     df[[param]].to_csv(f"{output_dir}/{param}.csv", index=False)
 
 #  Defining constant values 
 constants = {
-    'price_import': 1.0,
-    'price_export': 1.0,
+     'price_import': 2.0,
+     'price_export': 1.0,
     'price_ev': 1.0,
-    'rho_gas': 0.3,
-    'eta_chp': 0.40,
-    'Cop_ma_wt': 0.02,
-    'Cop_ma_pv': 0.01,
-    'rho_fuel': 11.5,
-    'eta_dg': 0.30,
-    'C_startup': 5.0,
-    'C_degrad_es': 0.02,
+    # 'rho_gas': 0.3,
+    # 'eta_chp': 0.40,
+    # 'Cop_ma_wt': 0.02,
+    # 'Cop_ma_pv': 0.01,
+    # 'rho_fuel': 11.5,
+    # 'eta_dg': 0.30,
+    # 'C_startup': 5.0,
+    # 'C_degrad_es': 0.02,
     'PEV_max': 60.0,
-    'eta_ch_es': 0.90,
-    'eta_dis_es': 0.90,
+    # 'eta_ch_es': 0.90,
+    # 'eta_dis_es': 0.90,
     'eta_ch_ev': 0.95,
-    'alpha_chp': 0.80,
-    'H_demand': 5.0,
-    'PCHP_max': 25.0,
-    'P_grid_import_max': 1.5 * df['load'].max(),
-    'P_grid_export_max': df['load'].max()
+    # 'alpha_chp': 0.80,
+    # 'H_demand': 5.0,
+    # 'PCHP_max': 25.0,
+    # 'P_grid_import_max': 1.5 * df['load'].max(),
+    # 'P_grid_export_max': df['load'].max()
 }
 
 # Saving constant files as repeated 8760-row 
@@ -95,7 +95,7 @@ for param, value in constants.items():
 
 # generating EV availability with 3-hour random sessions
 hours_per_year = len(df)
-session_length = 3 #3 hours
+session_length = 10 #10 hours
 presence_chance = 0.5
 random_seed = 19 
 
