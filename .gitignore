@@ -1,0 +1,14 @@
+# Ignore all CSV files
+*.csv
+
+# Ignore Python bytecode cache
+__pycache__/
+
+
+#Ignore txt files
+*.txt
+
+# Ignore the models and data files
+*.zip
+*.xlsx
+*.csv
