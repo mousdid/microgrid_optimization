@@ -1,8 +1,9 @@
-# Time periods 
-TIME_STEPS = list(range(1, 48))  #to modify depending on data
+# Time periods
+HOURS_NUMBER = 720
+TIME_STEPS = list(range(1, HOURS_NUMBER))  #to modify depending on data
 
 
-DATA_DIR = "data/parameters"
+DATA_DIR = "data/parameters/outage"
 
 
 # Each CSV has one column with header matching the key
@@ -20,8 +21,8 @@ PARAM_FILES = {
     'C_degrad_es': 'C_degrad_es.csv',#maybe constant
     'price_ev': 'price_ev.csv',
     # Capacity limits
-    'P_grid_import_max': 'P_grid_import_max_island.csv',
-    'P_grid_export_max': 'P_grid_export_max_island.csv',
+    'P_grid_import_max': 'P_grid_import_max.csv',
+    'P_grid_export_max': 'P_grid_export_max.csv',
     'PWT_max': 'PWT_max.csv',
     'PPV_max': 'PPV_max.csv',
     'PCHP_max': 'PCHP_max.csv',

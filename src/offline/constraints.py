@@ -5,11 +5,11 @@ def add_constraints(m):
 
     # Grid Import
     m.grid_import_lower = Constraint(m.T, rule=lambda m, t: m.p_import[t] >= 0)
-    m.grid_import_upper = Constraint(m.T, rule=lambda m, t: m.p_import[t] <= m.P_grid_import_max[t])
+    m.grid_import_upper = Constraint(m.T, rule=lambda m, t: m.p_import[t] <= m.u_maingrid[t] * m.P_grid_import_max[t])
     
     # Grid Export
     m.grid_export_lower = Constraint(m.T, rule=lambda m, t: m.p_export[t] >= 0)
-    m.grid_export_upper = Constraint(m.T, rule=lambda m, t: m.p_export[t] <= m.P_grid_export_max[t])
+    m.grid_export_upper = Constraint(m.T, rule=lambda m, t: m.p_export[t] <= (1-m.u_maingrid[t]) * m.P_grid_export_max[t])
     
     # # Wind Turbine
     m.wt_lower = Constraint(m.T, rule=lambda m, t: m.p_wt[t] >= 0)

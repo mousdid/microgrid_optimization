@@ -1,30 +1,60 @@
 import pandas as pd
 import numpy as np
 import os
+from datetime import datetime
+from config import  HOURS_NUMBER
 
 
-HOURS = 48  # or 8760 for full year
+HOURS = HOURS_NUMBER  # or 8760 for full year
 
 
 #defining folders
 input_csv = "data/raw/Payra_Original_load.csv" 
-output_dir = "data/parameters"
+input_price_csv = "data/raw/rt_hrl_lmps.csv"  
+
+output_dir = "data/parameters/default"
 os.makedirs(output_dir, exist_ok=True)
+
 
 #loading
 df = pd.read_csv(input_csv)
 df.columns = [col.strip().lower().replace(" ", "_") for col in df.columns]
 
+
 # extracting matching columns
 df['load'] = df['total_electrical_load_served_(kw)']
 df['PPV_max'] = df['photovoltaic_panel_power_output_(kw)']
-# df['PWT_max'] = df['wind_turbine_power_output_(kw)']
-# df['PDG_max'] = df['generator_power_output_(kw)']
-# df['Pch_es_max'] = df['battery_charge_power_(kw)']
-# df['Pdis_es_max'] = df['battery_discharge_power_(kw)']
-# df['soc'] = df['battery_state_of_charge_(%)'] / 100
+df['PWT_max'] = df['wind_turbine_power_output_(kw)']
+df['PDG_max'] = df['generator_power_output_(kw)']
+df['Pch_es_max'] = df['battery_charge_power_(kw)']
+df['Pdis_es_max'] = df['battery_discharge_power_(kw)']
+df['soc'] = df['battery_state_of_charge_(%)'] / 100
 
-df = df.iloc[:HOURS]  # Limit the size
+
+
+#  Defining constant values 
+constants = {
+    'rho_gas': 0.3,
+    'eta_chp': 0.40,
+    'Cop_ma_wt': 0.02,
+    'Cop_ma_pv': 0.01,
+    'rho_fuel': 11.5,
+    'eta_dg': 0.30,
+    'C_startup': 5.0,
+    'C_degrad_es': 0.02,
+    'PEV_max': 60.0,
+    'eta_ch_es': 0.90,
+    'eta_dis_es': 0.90,
+    'eta_ch_ev': 0.95,
+    'alpha_chp': 0.80,
+    'H_demand': 5.0,
+    'PCHP_max': 25.0,
+    'P_grid_import_max':1.5 * df['load'].max(),
+    'P_grid_export_max': df['load'].max(),
+    'PDG_max': df['PDG_max'].max()
+}
+
+
 
 # estimating the energy maximal
 
@@ -62,33 +92,10 @@ time_series_params = [
     'Pch_es_max', 'Pdis_es_max', 'Ees_max', 'Ees_min'
 ]
 
-# for param in time_series_params:
-#     df[[param]].to_csv(f"{output_dir}/{param}.csv", index=False)
+for param in time_series_params:
+     df[[param]].to_csv(f"{output_dir}/{param}.csv", index=False)
 
-#  Defining constant values 
-constants = {
-     'price_import': 20.0,
-     'price_export': 10.0,
-    'price_ev': 1.0,
-    # 'rho_gas': 0.3,
-    # 'eta_chp': 0.40,
-    # 'Cop_ma_wt': 0.02,
-    # 'Cop_ma_pv': 0.01,
-    # 'rho_fuel': 11.5,
-    # 'eta_dg': 0.30,
-    # 'C_startup': 5.0,
-    # 'C_degrad_es': 0.02,
-    'PEV_max': 60.0,
-    # 'eta_ch_es': 0.90,
-    # 'eta_dis_es': 0.90,
-    'eta_ch_ev': 0.95,
-    # 'alpha_chp': 0.80,
-    # 'H_demand': 5.0,
-    # 'PCHP_max': 25.0,
-    #'P_grid_import_max':1.5 * df['load'].max(),
-    #'P_grid_export_max': df['load'].max()
-}
-
+df = df.iloc[:HOURS]
 # Saving constant files as repeated 8760-row 
 for param, value in constants.items():
     pd.DataFrame({param: [value] * len(df)}).to_csv(f"{output_dir}/{param}.csv", index=False)
@@ -142,5 +149,77 @@ for t in range(hours_per_year):
             Eev_required[i] = required_energy
             i += 1
 pd.DataFrame({'Eev_required': Eev_required}).to_csv(f"{output_dir}/Eev_required.csv", index=False)
+
+
+
+
+
+def generate_ev_price_csv_simple(output_path='price_ev.csv'):#business rules
+
+
+    # BEV-1 rates ($/kWh)
+    rates = {
+        'Peak': 0.38079,
+        'Off-Peak': 0.18878,
+        'Super Off-Peak': 0.16212
+    }
+
+    
+    def get_tou_period(hour):
+        if 16 <= hour < 21:
+            return 'Peak'
+        elif (21 <= hour <= 23) or (0 <= hour < 9) or (14 <= hour < 16):
+            return 'Off-Peak'
+        else:  # 9:00 to 14:00
+            return 'Super Off-Peak'
+
+    # Generate hourly range for 2007
+    start_time = datetime(2007, 1, 1, 0)
+    end_time = datetime(2007, 12, 31, 23)
+    hours_per_year = pd.date_range(start=start_time, end=end_time, freq='h')
+    
+
+
+    # Compute price_ev
+    price_ev = [rates[get_tou_period(dt.hour)] for dt in hours_per_year][:HOURS]
+
+    # Create DataFrame with a single column
+    df = pd.DataFrame({'price_ev': price_ev})
+
+    # Save to CSV
+    df.to_csv(output_path, index=False)
+    return df
+
+generate_ev_price_csv_simple(output_path=f"{output_dir}/price_ev.csv")
+
+
+
+
+
+def extract_pjm_rto_prices(input_csv, import_output='price_import.csv', export_output='price_export.csv'):
+  
+    # Load full PJM pricing data
+    df = pd.read_csv(input_csv)
+
+    # Filter to only PJM-RTO rows
+    pjm_rto_df = df[df['pnode_name'] == 'PJM-RTO']
+
+    # Extract the total_lmp_rt column and rename it to 'price'
+    prices_import = pjm_rto_df[['total_lmp_rt']].rename(columns={'total_lmp_rt': 'price_import'})
+    prices_export = pjm_rto_df[['total_lmp_rt']].rename(columns={'total_lmp_rt': 'price_export'})
+    prices_export=prices_export.head(HOURS)/1000  # Limit to first 48 hours
+    prices_import = prices_import.head(HOURS)/1000  # Limit to first 48 hours
+
+    # Save to two separate files
+    prices_import.to_csv(import_output, index=False)
+    prices_export.to_csv(export_output, index=False)
+
+    return prices_import, prices_export
+
+extract_pjm_rto_prices(input_csv=input_price_csv, 
+                          import_output=f"{output_dir}/price_import.csv", 
+                          export_output=f"{output_dir}/price_export.csv")
+
+
 
 print(f"✅ All PARAM_FILES saved in '{output_dir}' for {len(df)} hourly steps")

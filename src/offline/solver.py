@@ -33,6 +33,7 @@ def solve_model():
     'u_DIS_ES': {t: m.u_dis_es[t].value for t in m.T},
     'startup_DG':  {t: m.e_startup_dg[t].value for t in m.T},
     'startup_CHP': {t: m.e_startup_chp[t].value for t in m.T},
+    "u_maingrid": {t: m.u_maingrid[t].value for t in m.T},
     'Load_el':  {t: m.param_load[t] for t in m.T},
     'Load_th':  {t: m.H_demand[t] for t in m.T},
 }
