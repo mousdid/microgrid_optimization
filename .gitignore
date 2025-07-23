@@ -7,3 +7,11 @@ __pycache__/
 
 #Ignore txt files
 *.txt
+
+# Ignore the models and data files
+*.zip
+*.xlsx
+*.csv
+
+output/
+data/
