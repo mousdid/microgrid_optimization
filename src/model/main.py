@@ -2,10 +2,18 @@ import os
 import pandas as pd
 from env import MicrogridEnv
 from agent import train_agent
-from scenarios import generate_scenario
+from scenarios import generate_mixed_scenario_dataset
 from stable_baselines3.common.env_checker import check_env
+from stable_baselines3.common.callbacks import EvalCallback, StopTrainingOnRewardThreshold
+from stable_baselines3.common.vec_env import SubprocVecEnv
+from stable_baselines3.common.monitor import Monitor
+from config import HORIZON
 
-PARAM_DIR = "data/parameters/default"
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+PARAM_DIR = "data/parameters/1year"  # Directory containing parameter CSV files
 
 def load_params(path):
     params = {}
@@ -15,29 +23,74 @@ def load_params(path):
             params[key] = pd.read_csv(os.path.join(path, fname)).iloc[:, 0].tolist()
     return params
 
+
+def make_env(seed_offset=19):
+    def _init(seed=seed_offset):
+        params = load_params(PARAM_DIR)
+        scenarios = generate_mixed_scenario_dataset(params, seed=seed)
+        return Monitor(MicrogridEnv({}, scenarios))
+    return _init
+
+
+
 if __name__ == "__main__":
-    params = load_params(PARAM_DIR)
-    scenario = generate_scenario(params, kind="normal")  
-    env = MicrogridEnv({}, scenario)
+
+    n_envs = 3 # Number of parallel environments
+    seed_offset = 19
     
+
     # Test that the environment follows the gymnasium API
-    check_env(env)
-    
-    model = train_agent(env,total_timesteps=300000)
+    #for i in range(n_envs):
+        #check_env(env_fns[i])
 
-    # Evaluate final cost
-    obs, _ = env.reset()  # Updated to unpack the tuple from reset()
-    total_reward = 0
-    done = False
-    
-    while not done:
-        action, _ = model.predict(obs, deterministic=True)
-        obs, reward, terminated, truncated, _ = env.step(action)  # Updated to unpack all 5 return values
-        done = terminated or truncated
-        total_reward += reward
+    env_fns = [make_env(seed_offset + i) for i in range(n_envs)]
+    env = SubprocVecEnv(env_fns)
 
-    print(f"Total reward : {total_reward:.2f}")
-    print("Training complete. Model saved as 'ppo_microgrid_model'.")
-    
-    env.reward_tracker.plot()
-    env.reward_tracker.clear()
+
+
+    stop_cb = StopTrainingOnRewardThreshold(reward_threshold=1000 ,verbose=1)
+    eval_cb = EvalCallback(
+    env,
+    callback_on_new_best=stop_cb,
+    eval_freq=HORIZON * 50,       # run evaluation every 100k steps
+    n_eval_episodes=8,
+    best_model_save_path="./best_model/",
+    verbose=1
+)
+    model = train_agent(
+    env,
+    total_timesteps=3_000_000,
+    call_back=eval_cb,
+    model_name="ppo_3_M_microgrid_model_cost_importance_0.1_v2"
+)
+
+
+    trackers = env.get_attr("reward_tracker")
+    for i, tracker in enumerate(trackers):
+        print(f"=== Env #{i} reward breakdown ===")
+        tracker.plot()      # uses the class's plt.figure, plt.plot, etc.
+        tracker.clear()
+
+
+   # … assume `env` is your SubprocVecEnv, `model` is your trained PPO …
+
+    # Reset all envs
+    obs     = env.reset()                            # obs.shape == (n_envs, obs_dim)
+    total_r = np.zeros(env.num_envs, dtype=float)    # accumulator for each env
+    dones   = np.zeros(env.num_envs, dtype=bool)
+
+    # 2) Rollout until every env hits done
+    while not dones.all():
+        # get one action per env
+        actions, _ = model.predict(obs, deterministic=True)
+        # step returns (obs, rewards, dones, infos)
+        obs, rewards, dones, infos = env.step(actions)
+        # accumulate each env's per‐step reward
+        total_r += rewards
+
+    # 3) Now total_r[i] is the sum of rewards for env i over its episode
+    print("Per‑env total reward:", total_r)
+    print("Mean total reward  :", total_r.mean())
+    print("Sum of all rewards :", total_r.sum())
+
+

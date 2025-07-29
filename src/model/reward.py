@@ -102,11 +102,12 @@ def compute_reward(
     # === 5. FINAL REWARD ===
 
     insights = {
+        'total_true_cost': total_cost,
         'total_cost': normalized_cost,
-        'penalty_load': penalty_load,
-        'penalty_heat': penalty_heat,
-        'penalty_batt': penalty_batt,
-        'penalty_ev': penalty_ev
+        'penalty_load': norm_load_balance_violation,
+        'penalty_heat': norm_heat_deficit,
+        'penalty_batt': norm_battery_violation,
+        'penalty_ev': norm_ev_violation
     }
     
     reward_load = (
@@ -127,7 +128,10 @@ def compute_reward(
     reward_ev = (
     +1.0 * (1.0 - norm_ev_violation)
     - EV_SOC_BOUNDS_WEIGHT * norm_ev_violation
-)
+    )
+
+    
+
 
 
 

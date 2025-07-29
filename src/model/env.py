@@ -1,4 +1,5 @@
 import numpy as np
+import os
 import gymnasium as gym 
 from state_action import get_observation_space, get_action_space
 from config import OBS_DIM,HORIZON
@@ -6,13 +7,16 @@ from dynamics import update_battery_soc, update_ev_soc, process_grid_action, pro
 from reward import compute_reward
 from monitor import RewardTracker  # Add at the top
 
+
 class MicrogridEnv(gym.Env):
-    def __init__(self, data, params):
+    def __init__(self, data, params,horizon=HORIZON):
+        print(f"[ENV __init__ PID={os.getpid()}]")
         super().__init__()
         self.data = data
         self.params = params
-        self.T = len(params.get("load", [HORIZON]))  # Default to 48 if not available
+        self.T = len(params.get("load", [horizon]))  #
         self.t = 0
+        
 
         # Initialize storage and startup trackers
         self.soc_es = params.get('Ees_min', [0])[0] if 'Ees_min' in params and len(params['Ees_min']) > 0 else 0  # Battery to min
@@ -38,7 +42,7 @@ class MicrogridEnv(gym.Env):
     def reset(self, *, seed=None, options=None):
         if seed is not None:
             super().reset(seed=seed)
-            
+        
         self.t = 0
         self.soc_es = self.params.get('Ees_min', [0])[0] if 'Ees_min' in self.params and len(self.params['Ees_min']) > 0 else 0
         self.soc_ev = 0.0
@@ -290,7 +294,7 @@ class MicrogridEnv(gym.Env):
 
         self.reward_tracker.log(breakdown)
         
-        return self._get_obs(), reward, terminated, truncated, {}
+        return self._get_obs(), float(reward), terminated, truncated, breakdown
 
     def render(self, mode='human'):
         pass

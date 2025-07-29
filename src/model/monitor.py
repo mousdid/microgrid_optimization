@@ -13,7 +13,7 @@ class RewardTracker:
             print("No reward data to plot.")
             return
 
-        keys = [k for k in self.history[0].keys() if k != 'timestep']
+        keys = [k for k in self.history[0].keys() if k not in ("timestep", "total_true_cost")]
         timesteps = [r.get('timestep', i) for i, r in enumerate(self.history)]
 
         plt.figure(figsize=(12, 8))

@@ -4,15 +4,15 @@ import os
 from datetime import datetime
 from config import HOURS_NUMBER
 
-HOURS = 4000  # or 8760 for full year
+HOURS = 8760  # or 8760 for full year
 train_ratio = 0.8
 
 # --- Define folders ---
 input_csv = "data/raw/Payra_Original_load.csv"
 input_price_csv = "data/raw/rt_hrl_lmps.csv"
 
-output_dir = "data/trainset/default"
-output_test_dir = "data/testset/default"
+output_dir = "data/trainset/1year"
+output_test_dir = "data/testset/1year"
 os.makedirs(output_dir, exist_ok=True)
 os.makedirs(output_test_dir, exist_ok=True)
 
@@ -43,7 +43,6 @@ constants = {
     'eta_dis_es': 0.90,
     'eta_ch_ev': 0.95,
     'alpha_chp': 0.80,
-    'H_demand': 5.0,
     'PCHP_max': 25.0,
     'P_grid_import_max': 1.5 * df['load'].max(),
     'P_grid_export_max': df['load'].max(),
@@ -183,5 +182,59 @@ price_import[split_index:].to_frame().to_csv(f"{output_test_dir}/price_import.cs
 
 price_export[:split_index].to_frame().to_csv(f"{output_dir}/price_export.csv", index=False)
 price_export[split_index:].to_frame().to_csv(f"{output_test_dir}/price_export.csv", index=False)
+
+
+def generate_heat_demand_csv():
+    # Create hourly timestamps for the full year
+    hours = pd.date_range("2007-01-01", "2007-12-31 23:00", freq="H")
+
+    # Parameters
+    mean_liters_per_day = 100
+    temp_inlet = 25
+    temp_target = 45
+    delta_T = temp_target - temp_inlet
+
+    # Physical constants
+    c = 4186  # J/kg·°C
+    rho = 1000  # kg/m³
+
+    # Base daily usage profile (6–9 AM, 6–9 PM)
+    base_profile = np.zeros(24)
+    base_profile[6:10] = 0.5
+    base_profile[18:22] = 0.5
+    base_profile /= base_profile.sum()
+
+    # Generate hourly heat demand with jittered profiles
+    hourly_liters = []
+    random_seed = 19  # For reproducibility
+    np.random.seed(random_seed)
+    for _ in range(365):
+        daily_liters = np.random.normal(mean_liters_per_day, 10)
+
+        # Add random jitter to the daily usage pattern
+        jitter = np.random.uniform(0.9, 1.1, size=24)
+        daily_profile = base_profile * jitter
+        daily_profile /= daily_profile.sum()
+
+        hourly_split = daily_profile * daily_liters
+        hourly_liters.extend(hourly_split)
+
+    # Convert to kWh
+    hourly_liters = np.array(hourly_liters)
+    Q_J = hourly_liters / 1000 * rho * c * delta_T
+    Q_kWh = Q_J / 3.6e6
+
+    # Output DataFrame with just one column
+    df = pd.DataFrame({"H_demand": Q_kWh}, index=hours)
+
+    # Save to CSV
+    
+    return df
+
+heat_df=generate_heat_demand_csv()
+heat_df[:split_index].to_csv(f"{output_dir}/H_demand.csv", index=False)
+heat_df[split_index:].to_csv(f"{output_test_dir}/H_demand.csv", index=False)
+
+
 
 print(f"✅ All PARAM_FILES saved in '{output_dir}' (train) and '{output_test_dir}' (test)")

@@ -1,9 +1,9 @@
 # Time periods
-HOURS_NUMBER = 720
+HOURS_NUMBER = 48  
 TIME_STEPS = list(range(1, HOURS_NUMBER))  #to modify depending on data
 
 
-DATA_DIR = "data/parameters/outage"
+DATA_DIR = "data/parameters/48"
 
 
 # Each CSV has one column with header matching the key

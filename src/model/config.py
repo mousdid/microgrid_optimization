@@ -1,4 +1,4 @@
-HORIZON = 720 # time steps per episode
+HORIZON = 7008
 GAMMA = 0.99
 GAE_LAMBDA = 0.95
 CLIP_RANGE = 0.2
@@ -9,13 +9,14 @@ BATCH_SIZE = 64
 ENTROPY_COEF = 0.01
 VALUE_COEF = 0.5
 
-# Reward weights for constraint penalties
-LOAD_BALANCE_WEIGHT = 7 # Power balance constraint penalty
-HEAT_BALANCE_WEIGHT = 7     # Heat demand constraint penalty
-BATTERY_BOUNDS_WEIGHT = 3  # Battery SOC bounds violation penalty
-EV_SOC_BOUNDS_WEIGHT = 3   # EV SOC bounds violation penalty
 
-SCENARIO_TYPE = "normal"# "storage_failure", "load_spike", "outage"]
+# Reward weights for constraint penalties
+LOAD_BALANCE_WEIGHT = 0.1 # Power balance constraint penalty 7
+HEAT_BALANCE_WEIGHT = 0.1    # Heat demand constraint penalty 7
+BATTERY_BOUNDS_WEIGHT = 0.1  # Battery SOC bounds violation penalty 3
+EV_SOC_BOUNDS_WEIGHT = 0.1  # EV SOC bounds violation penalty 3
+
+SCENARIO_TYPES = ["normal", "storage_failure", "load_spike", "outage"]
 
 # State and action dimensions
 OBS_DIM = 48  # Updated observation dimension

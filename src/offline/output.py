@@ -18,6 +18,8 @@ def plot_results(report: dict):
     fig, ax1 = plt.subplots(figsize=(12, 5))
     
     # Plot generation sources on primary axis
+    print("Columns in df:", df.columns.tolist())
+
     df[['CHP','DG','PV','WT']].plot.area(ax=ax1, alpha=0.6)
     ax1.plot(df['Load_el'], 'k--', label='Electric Load')
     ax1.plot(df['Import'], 'r-', label='Grid Import')
