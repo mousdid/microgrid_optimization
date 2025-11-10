@@ -12,7 +12,7 @@ HOURS = HOURS_NUMBER  # or 8760 for full year
 input_csv = "data/raw/Payra_Original_load.csv" 
 input_price_csv = "data/raw/rt_hrl_lmps.csv"  
 
-output_dir = "data/parameters/48"
+output_dir = "data/parameters/1year"
 
 os.makedirs(output_dir, exist_ok=True)
 
@@ -51,7 +51,9 @@ constants = {
     'PCHP_max': 25.0,
     'P_grid_import_max':1.5 * df['load'].max(),
     'P_grid_export_max': df['load'].max(),
-    'PDG_max': df['PDG_max'].max()
+    'PDG_max': df['PDG_max'].max(),
+    'Pch_es_max':df['Pch_es_max'].max(),
+    'Pdis_es_max':df['Pdis_es_max'].max()
 }
 
 

@@ -22,7 +22,7 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecMonitor, VecEnv
 from stable_baselines3.common.monitor import Monitor
 
-def train_agent(env, total_timesteps=100_000,call_back=None, model_name="ppo_microgrid_model"):
+def train_agent(env, total_timesteps=100_000,call_back=None, model_name="ppo_microgrid_model_placeholder"):
     """
     env: either a gymnasium.Env or a VecEnv
     """

@@ -21,3 +21,7 @@ SCENARIO_TYPES = ["normal", "storage_failure", "load_spike", "outage"]
 # State and action dimensions
 OBS_DIM = 48  # Updated observation dimension
 ACT_DIM = 7  # Updated action dimension
+
+# --- Risk (CVaR) settings ---
+CVAR_ALPHA = 0.05           # worst 5% tail
+CVAR_VIOL_WEIGHT = 5.0      # how hard to push tail violations down (tune 2–10)

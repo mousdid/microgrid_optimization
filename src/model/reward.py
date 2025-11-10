@@ -80,7 +80,7 @@ def compute_reward(
     # EV SOC bounds violation (only when leaving is possible)
     penalty_ev = 0
     if leave_possible == 1:
-        ev_violation = max(0, Eev_required - soc_ev) + max(0, soc_ev - 70)
+        ev_violation = max(0, Eev_required - soc_ev)
         
     else:
         ev_violation = 0
@@ -135,9 +135,9 @@ def compute_reward(
 
 
 
-    # At the end of compute_reward function:
+
     
-    reward = -normalized_cost + reward_load + reward_heat + reward_batt + reward_ev
+    reward = -normalized_cost 
     #reward = np.clip(reward, -10, 10)
 
     return reward, insights

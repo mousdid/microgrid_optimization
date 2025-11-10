@@ -46,7 +46,9 @@ constants = {
     'PCHP_max': 25.0,
     'P_grid_import_max': 1.5 * df['load'].max(),
     'P_grid_export_max': df['load'].max(),
-    'PDG_max': df['PDG_max'].max()
+    'PDG_max': df['PDG_max'].max(),
+    'Pch_es_max':df['Pch_es_max'].max(),
+    'Pdis_es_max':df['Pdis_es_max'].max()
 }
 
 # --- Estimate Ees_max ---

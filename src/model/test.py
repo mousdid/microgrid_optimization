@@ -207,21 +207,21 @@ def moving_average_list(data, window_size=24):
 
 if __name__ == '__main__':
     # --- 48-hour test (no random scenarios) ---
-    path_48h = 'data/testset/48'
-    params_48h = load_params(path_48h)
+    #path_48h = 'data/testset/48'
+    #params_48h = load_params(path_48h)
     #'ppo_microgrid_model_3m_3env_baseseed19':ppo7 WITHOUT EALY STOP
     #'ppo_3_M_microgrid_model':ppo11 7 7 3 3
     #'ppo_3_M_microgrid_model_cost_importance_0.5':ppo12
     #'ppo_3_M_microgrid_model_cost_importance_0.1':PPO 13
     #best_model_path = "./best_model/best_model"
     
-    policy = PPO.load('ppo_3_M_microgrid_model_cost_importance_0.1') 
+    policy = PPO.load('ppo_0.4_M_microgrid_model_cost_importance_0.1_v4') 
 
 
-    ppo_cost_48h, ppo_cost_breakdown_48h = evaluate_policy(policy, scenario=params_48h,horizon=48)
+    #ppo_cost_48h, ppo_cost_breakdown_48h = evaluate_policy(policy, scenario=params_48h,horizon=48)
     # # milp_cost_48h   = solve_milp(params_48h))
 
-    print(f"48h  PPO cost: {ppo_cost_48h:.2f}")
+    #print(f"48h  PPO cost: {ppo_cost_48h:.2f}")
     # # print(f"48h  MILP cost: {milp_cost_48h:.2f}")
 
 

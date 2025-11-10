@@ -29,3 +29,24 @@ class RewardTracker:
 
     def clear(self):
         self.history = []
+    def compute_cvar(self, alpha=0.05):
+        import numpy as np
+        if not self.history:
+            return 0.0
+
+        vals = []
+        for r in self.history:
+            v = 0.0
+            v += r.get('penalty_load', 0.0)
+            v += r.get('penalty_heat', 0.0)
+            v += r.get('penalty_batt', 0.0)
+            v += r.get('penalty_ev', 0.0)
+            vals.append(v)
+
+        if len(vals) == 0:
+            return 0.0
+
+        q = np.quantile(vals, 1.0 - alpha)
+        tail = [v for v in vals if v >= q]
+        return float(np.mean(tail)) if tail else 0.0
+w

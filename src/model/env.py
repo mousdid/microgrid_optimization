@@ -2,10 +2,12 @@ import numpy as np
 import os
 import gymnasium as gym 
 from state_action import get_observation_space, get_action_space
-from config import OBS_DIM,HORIZON
+from config import OBS_DIM,HORIZON, CVAR_ALPHA, CVAR_VIOL_WEIGHT
 from dynamics import update_battery_soc, update_ev_soc, process_grid_action, process_battery_action
 from reward import compute_reward
-from monitor import RewardTracker  # Add at the top
+from monitor import RewardTracker  
+
+
 
 
 class MicrogridEnv(gym.Env):
@@ -223,8 +225,14 @@ class MicrogridEnv(gym.Env):
         # Update EV SOC using dynamics function
         new_soc_ev = update_ev_soc(self.soc_ev, p_ch_ev, eta_ch_ev, is_session_start)
         
-        # Apply EV capacity constraint (70 kWh max)
-        new_soc_ev = min(new_soc_ev, 70)
+        new_soc_ev = update_ev_soc(self.soc_ev, p_ch_ev, eta_ch_ev, is_session_start)
+
+        # Enforce physical SOC limits (e.g. 0–70 kWh)
+        Eev_min = 0.2*70
+        Eev_max = 70
+        new_soc_ev = np.clip(new_soc_ev, Eev_min, Eev_max)
+
+
         
         # === STEP 5: Store Current State for Next Timestep ===
         
@@ -293,6 +301,11 @@ class MicrogridEnv(gym.Env):
         
 
         self.reward_tracker.log(breakdown)
+        if terminated:
+            cvar_vio = self.reward_tracker.compute_cvar(alpha=CVAR_ALPHA)
+            reward -= CVAR_VIOL_WEIGHT * cvar_vio
+            breakdown["cvar_vio"] = cvar_vio
+
         
         return self._get_obs(), float(reward), terminated, truncated, breakdown
 

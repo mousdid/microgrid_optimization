@@ -59,9 +59,9 @@ if __name__ == "__main__":
 )
     model = train_agent(
     env,
-    total_timesteps=3_000_000,
+    total_timesteps=400_000,
     call_back=eval_cb,
-    model_name="ppo_3_M_microgrid_model_cost_importance_0.1_v2"
+    model_name="ppo_0.4_M_microgrid_model_cost_importance_0.1_v4"
 )
 
 
