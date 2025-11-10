@@ -232,7 +232,7 @@ if __name__ == '__main__':
     
     # use 20% of 8760= ~1,752 timesteps window
     
-    scenario_1y = generate_mixed_scenario_dataset(params_1y, seed=SEED,total_hours=1752)
+    scenario_1y = generate_mixed_scenario_dataset(params_1y, seed=SEED,total_hours=1752,number_events=1)
 
     ppo_cost_1y, ppo_cost_breakdown_1y = evaluate_policy(policy, scenario=scenario_1y,horizon=1752)
     baseline_cost_1y, baseline_cost_breakdown_1y = evaluate_baseline(scenario_1y, horizon=1752)

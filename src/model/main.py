@@ -27,7 +27,7 @@ def load_params(path):
 def make_env(seed_offset=19):
     def _init(seed=seed_offset):
         params = load_params(PARAM_DIR)
-        scenarios = generate_mixed_scenario_dataset(params, seed=seed)
+        scenarios = generate_mixed_scenario_dataset(params, seed=seed,number_events=5)
         return Monitor(MicrogridEnv({}, scenarios))
     return _init
 

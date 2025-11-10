@@ -12,15 +12,13 @@ VALUE_COEF = 0.5
 
 # Reward weights for constraint penalties
 LOAD_BALANCE_WEIGHT = 0.1 # Power balance constraint penalty 7
-HEAT_BALANCE_WEIGHT = 0.1    # Heat demand constraint penalty 7
-BATTERY_BOUNDS_WEIGHT = 0.1  # Battery SOC bounds violation penalty 3
-EV_SOC_BOUNDS_WEIGHT = 0.1  # EV SOC bounds violation penalty 3
 
-SCENARIO_TYPES = ["normal", "storage_failure", "load_spike", "outage"]
+
+SCENARIO_TYPES = ["outage"]
 
 # State and action dimensions
-OBS_DIM = 48  # Updated observation dimension
-ACT_DIM = 7  # Updated action dimension
+OBS_DIM = 32  # Updated observation dimension
+ACT_DIM = 5  # Updated action dimension
 
 # --- Risk (CVaR) settings ---
 CVAR_ALPHA = 0.05           # worst 5% tail

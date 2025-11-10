@@ -38,9 +38,8 @@ class RewardTracker:
         for r in self.history:
             v = 0.0
             v += r.get('penalty_load', 0.0)
-            v += r.get('penalty_heat', 0.0)
             v += r.get('penalty_batt', 0.0)
-            v += r.get('penalty_ev', 0.0)
+
             vals.append(v)
 
         if len(vals) == 0:
@@ -49,4 +48,3 @@ class RewardTracker:
         q = np.quantile(vals, 1.0 - alpha)
         tail = [v for v in vals if v >= q]
         return float(np.mean(tail)) if tail else 0.0
-w

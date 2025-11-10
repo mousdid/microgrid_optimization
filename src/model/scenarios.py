@@ -6,7 +6,7 @@ import random
 import os
 import pandas as pd
 
-def generate_mixed_scenario_dataset(data, total_hours=HORIZON, seed=19):
+def generate_mixed_scenario_dataset(data, total_hours=HORIZON, seed=19, number_events=5):
     """
     Returns a full-length dataset with embedded scenario episodes.
     """
@@ -63,9 +63,9 @@ def generate_mixed_scenario_dataset(data, total_hours=HORIZON, seed=19):
 
 
     # Insert events (customize as needed)
-    insert_event("outage", duration_range=(24, 72), count=3)
-    insert_event("storage_failure", duration_range=(48, 72), count=1)
-    insert_event("load_spike", duration_range=(1, 3), count=1)
+    insert_event("outage", duration_range=(24, 72), count=number_events)
+    #insert_event("storage_failure", duration_range=(48, 72), count=1)
+    #insert_event("load_spike", duration_range=(1, 3), count=1)
 
     new_data["scenario"] = scenario_tags
     save_scenario(pd.DataFrame(new_data), total_hours, seed)
