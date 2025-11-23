@@ -1,5 +1,6 @@
 import numpy as np
-from config import LOAD_BALANCE_WEIGHT
+import math
+from config import LOAD_BALANCE_WEIGHT,COST_WEIGHT
 
 def compute_reward(
     t,
@@ -45,16 +46,23 @@ def compute_reward(
     
     degrad_cost = C_degrad_es * p_dis_es
     
+
+
+    #definiton of epsilon
+    #epsilon=1e-6
     # Total cost calculation
+
     total_cost = (
         cost_import
-        - revenue_export
-        + cost_wt
+        -revenue_export
+        +cost_wt
         + cost_pv
         + fuel_dg
         + startup_dg
         + degrad_cost
-    )
+        )
+
+    #scale_cost=max(math.sqrt(total_gain**2+total_loss**2),epsilon)
     
     # === 2. CONSTRAINT PENALTIES ===
     
@@ -62,6 +70,7 @@ def compute_reward(
     total_supply = p_import + p_wt + p_pv + p_dg + p_dis_es
     total_demand = p_export + load  
     load_balance_violation = abs(total_supply - total_demand)
+    #scale_power=max(math.sqrt(total_supply**2+total_demand**2),epsilon)
     
     
 
@@ -73,15 +82,14 @@ def compute_reward(
     
 
     # === 3.  Normalization ===
-    norm_load_balance_violation = load_balance_violation / (load + 1e-6)
-    normalized_cost = total_cost / (load + 1e-6)
+    norm_load_balance_violation = load_balance_violation 
+    normalized_cost = total_cost 
 
-    # === 4. COEFFICIENTS ===
-    penalty_load = -LOAD_BALANCE_WEIGHT * norm_load_balance_violation
+
     
     
 
-    # === 5. FINAL REWARD ===
+    # === 4. FINAL REWARD ===
 
     insights = {
         'total_true_cost': total_cost,
@@ -90,10 +98,12 @@ def compute_reward(
 
     }
     
-    reward_load = (
-    +5.0 * (1.0 - norm_load_balance_violation)
-    - LOAD_BALANCE_WEIGHT * norm_load_balance_violation
-)
+#     reward_load = (
+#     +5.0 * (1.0 - norm_load_balance_violation)
+#     - LOAD_BALANCE_WEIGHT * norm_load_balance_violation
+# )
+    reward_load = LOAD_BALANCE_WEIGHT * (1.0-norm_load_balance_violation)
+    reward_cost=normalized_cost
 
 
     
@@ -103,7 +113,7 @@ def compute_reward(
 
 
     
-    reward = -normalized_cost
-    reward = np.clip(reward, -10, 10)
+    reward = -reward_cost + reward_load
+    #reward = np.clip(reward, -10, 10)
 
     return reward, insights

@@ -19,8 +19,8 @@ def get_observation_space():
     high_bounds.append(1000.0)
     
     # Price parameters (grid-related prices)
-    low_bounds.extend([-100.0, -100.0, 0.0])  # price_import, price_export, price_ev
-    high_bounds.extend([100.0, 100.0, 100.0])
+    low_bounds.extend([-100.0, -100.0])  # price_import, price_export
+    high_bounds.extend([100.0, 100.0])
     
     # Cost parameters (cost-related)
     low_bounds.extend([ 0.0, 0.0, 0.0, 0.0, 0.0])  # Cop_ma_wt, Cop_ma_pv, rho_fuel, C_startup, C_degrad_es
@@ -85,7 +85,7 @@ def get_action_space():
     """
     Define action space according to specification:
     - 2 continuous actions in [-1, 1]: for p_import/p_export and p_ch_es/p_dis_es
-    - 4 continuous actions in [0, 1]: for p_wt, p_chp, p_dg, p_pv
+    - 3 continuous actions in [0, 1]: for p_wt, p_dg, p_pv
     """
     
     # Action vector structure:

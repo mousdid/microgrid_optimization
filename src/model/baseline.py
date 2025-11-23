@@ -31,7 +31,7 @@ class BaselineController:
         action[4] = 1.0  # PV
 
         # DG only on outage
-        #action[3] = 1.0 if self.params['scenario'][t] == 'outage' else 0.0
+        action[3] = 1.0 if self.params['scenario'][t] == 'outage' else 0.0
         action[3] = 0.0
 
         

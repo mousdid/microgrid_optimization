@@ -27,7 +27,7 @@ def load_params(path):
 def make_env(seed_offset=19):
     def _init(seed=seed_offset):
         params = load_params(PARAM_DIR)
-        scenarios = generate_mixed_scenario_dataset(params, seed=seed,number_events=5)
+        scenarios = generate_mixed_scenario_dataset(params, seed=seed,number_events=3)
         return Monitor(MicrogridEnv({}, scenarios))
     return _init
 
@@ -35,7 +35,7 @@ def make_env(seed_offset=19):
 
 if __name__ == "__main__":
 
-    n_envs = 3 # Number of parallel environments
+    n_envs = 1 # Number of parallel environments
     seed_offset = 19
     
 
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     env,
     total_timesteps=400_000,
     call_back=eval_cb,
-    model_name="ppo_0.4_M_microgrid_model_cost_importance_0.1_v4"
+    model_name="ppo_0.4_M_microgrid_model_cost_importance_0.1_1env_withcvar_x2_withweights"
 )
 
 

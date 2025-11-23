@@ -2,10 +2,10 @@ import numpy as np
 import os
 import gymnasium as gym 
 from state_action import get_observation_space, get_action_space
-from config import OBS_DIM,HORIZON, CVAR_ALPHA, CVAR_VIOL_WEIGHT
+from config import OBS_DIM,HORIZON, CVAR_ALPHA, CVAR_VIOL_WEIGHT, CVAR_USE
 from dynamics import update_battery_soc, process_grid_action, process_battery_action
 from reward import compute_reward
-from monitor import RewardTracker  
+from monitor import RewardTracker,  CVARTracker  
 
 
 
@@ -36,11 +36,21 @@ class MicrogridEnv(gym.Env):
 
         self.observation_space = get_observation_space()
         self.action_space = get_action_space()
-        self.reward_tracker = RewardTracker()  # Track reward components
+        self.cvar_tracker = CVARTracker()#calulate cvar
+        self.reward_tracker = RewardTracker()   ### track rewards
 
     def reset(self, *, seed=None, options=None):
+
+        self.cvar_tracker.clear()
         if seed is not None:
             super().reset(seed=seed)
+
+                # === SPEED-UP: convert params to NumPy arrays ===
+        # for key in self.params:
+        #     # Only convert if not already a NumPy array
+        #     if not isinstance(self.params[key], np.ndarray):
+        #         self.params[key] = np.asarray(self.params[key], dtype=np.float32)
+
         
         self.t = 0
         self.soc_es = self.params.get('Ees_min', [0])[0] if 'Ees_min' in self.params and len(self.params['Ees_min']) > 0 else 0
@@ -214,19 +224,20 @@ class MicrogridEnv(gym.Env):
         }
      
         self.prev_soc_es = self.soc_es
-        self.prev_u_dg = u_dg
+        
         self.prev_u_es = u_es
         self.prev_u_maingrid = u_maingrid
         
         # Update current energy states
         self.soc_es = new_soc_es
+       
     
         
         # === STEP 6: Compute Reward ===
         
         # Get current parameters needed for reward calculation
         current_load = safe_param("load", 0)
-
+        
         
         # Calculate reward using the reward function
         reward,breakdown = compute_reward(
@@ -257,6 +268,7 @@ class MicrogridEnv(gym.Env):
 
     
         )
+        self.prev_u_dg = u_dg
         
         # === STEP 7: Update Time and Check Termination ===
         self.t += 1
@@ -265,10 +277,14 @@ class MicrogridEnv(gym.Env):
         
 
         self.reward_tracker.log(breakdown)
-        if terminated:
-            cvar_vio = self.reward_tracker.compute_cvar(alpha=CVAR_ALPHA)
+        self.cvar_tracker.log(breakdown)
+
+        if terminated and CVAR_USE==1:
+            cvar_vio = self.cvar_tracker.compute_cvar(alpha=CVAR_ALPHA)
             reward -= CVAR_VIOL_WEIGHT * cvar_vio
             breakdown["cvar_vio"] = cvar_vio
+        
+        
 
         
         return self._get_obs(), float(reward), terminated, truncated, breakdown

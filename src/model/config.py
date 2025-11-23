@@ -12,14 +12,17 @@ VALUE_COEF = 0.5
 
 # Reward weights for constraint penalties
 LOAD_BALANCE_WEIGHT = 0.1 # Power balance constraint penalty 7
+COST_WEIGHT=100
 
 
 SCENARIO_TYPES = ["outage"]
 
 # State and action dimensions
-OBS_DIM = 32  # Updated observation dimension
+OBS_DIM = 31  # Updated observation dimension
 ACT_DIM = 5  # Updated action dimension
 
 # --- Risk (CVaR) settings ---
 CVAR_ALPHA = 0.05           # worst 5% tail
 CVAR_VIOL_WEIGHT = 5.0      # how hard to push tail violations down (tune 2–10)
+
+CVAR_USE=1 # 1 = True, 0 = False for uswing cvar
